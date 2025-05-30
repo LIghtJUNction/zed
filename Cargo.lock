@@ -9030,6 +9030,7 @@ dependencies = [
  "itertools 0.14.0",
  "language",
  "lsp",
+ "picker",
  "project",
  "release_channel",
  "serde_json",
