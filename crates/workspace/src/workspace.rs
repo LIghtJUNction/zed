@@ -5618,7 +5618,6 @@ impl Workspace {
         } else if let Some((notification_id, _)) = self.notifications.pop() {
             dismiss_app_notification(&notification_id, cx);
         } else {
-            cx.emit(Event::ClearActivityIndicator);
             cx.propagate();
         }
     }
