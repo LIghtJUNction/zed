@@ -278,6 +278,7 @@ actions!(
         ConvertToUpperCase,
         ConvertToRot13,
         ConvertToRot47,
+        DiffClipboardWithSelection,
         Copy,
         CopyAndTrim,
         CopyFileLocation,

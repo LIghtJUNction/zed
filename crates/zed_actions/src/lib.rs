@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use gpui::{actions, impl_actions};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -23,7 +25,53 @@ pub struct OpenZedUrl {
     pub url: String,
 }
 
-impl_actions!(zed, [OpenBrowser, OpenZedUrl]);
+#[derive(Clone, PartialEq, Default, Deserialize, JsonSchema)]
+pub struct DiffText {
+    #[serde(skip)]
+    pub old_text_data: TextData,
+    #[serde(skip)]
+    pub new_text_data: TextData,
+}
+
+#[derive(Clone, PartialEq, Default, Deserialize, JsonSchema)]
+pub struct TextData {
+    #[serde(skip)]
+    pub text: String,
+    #[serde(skip)]
+    pub file_path: FilePath,
+    #[serde(skip)]
+    pub language: Option<String>,
+    #[serde(skip)]
+    pub selection_data: Option<SelectionData>,
+}
+
+#[derive(Clone, PartialEq, Deserialize, JsonSchema)]
+pub enum FilePath {
+    #[serde(skip)]
+    Path(Option<PathBuf>),
+    #[serde(skip)]
+    Custom(String),
+}
+
+impl Default for FilePath {
+    fn default() -> Self {
+        FilePath::Path(None)
+    }
+}
+
+#[derive(Clone, PartialEq, Default, Deserialize, JsonSchema)]
+pub struct SelectionData {
+    #[serde(skip)]
+    pub start_row: u32,
+    #[serde(skip)]
+    pub start_column: u32,
+    #[serde(skip)]
+    pub end_row: u32,
+    #[serde(skip)]
+    pub end_column: u32,
+}
+
+impl_actions!(zed, [OpenBrowser, OpenZedUrl, DiffText]);
 
 actions!(
     zed,
