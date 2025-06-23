@@ -1379,8 +1379,8 @@ impl AgentDiff {
             | ThreadEvent::ToolConfirmationNeeded
             | ThreadEvent::ToolUseLimitReached
             | ThreadEvent::CancelEditing
-            | ThreadEvent::ProfileChanged
-            | ThreadEvent::RetryScheduled { .. } => {}
+            | ThreadEvent::RetryScheduled { .. }
+            | ThreadEvent::ProfileChanged => {}
         }
     }
 
