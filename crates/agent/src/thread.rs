@@ -1858,8 +1858,11 @@ impl Thread {
                                         cx.notify();
                                     }
                                     LanguageModelKnownError::RateLimitExceeded { retry_after } => {
-                                        let provider = model.provider_name().0.as_ref();
-                                        let error_message = format!("{provider}'s API rate limit exceeded");
+                                        let provider_name = model.provider_name();
+                                        let error_message = format!(
+                                            "{}'s API rate limit exceeded",
+                                            provider_name.0.as_ref()
+                                        );
 
                                         if !thread.handle_rate_limit_error(
                                             &error_message,
@@ -1872,8 +1875,11 @@ impl Thread {
                                         }
                                     }
                                     LanguageModelKnownError::Overloaded => {
-                                        let provider_name = model.provider_name().0.as_ref();
-                                        let error_message = format!("{provider}'s API servers are overloaded right now");
+                                        let provider_name = model.provider_name();
+                                        let error_message = format!(
+                                            "{}'s API servers are overloaded right now",
+                                            provider_name.0.as_ref()
+                                        );
 
                                         if !thread.handle_retryable_error(
                                             &error_message,
@@ -1885,8 +1891,11 @@ impl Thread {
                                         }
                                     }
                                     LanguageModelKnownError::ApiInternalServerError => {
-                                        let provider = model.provider_name().0.as_ref();
-                                        let error_message = format!("{provider}'s API server reported an internal server error");
+                                        let provider_name = model.provider_name();
+                                        let error_message = format!(
+                                            "{}'s API server reported an internal server error",
+                                            provider_name.0.as_ref()
+                                        );
 
                                         if !thread.handle_retryable_error(
                                             &error_message,
@@ -2043,10 +2052,6 @@ impl Thread {
         window: Option<AnyWindowHandle>,
         cx: &mut Context<Self>,
     ) -> bool {
-        // For rate limit errors, we only retry once with the specified duration
-        // Clear any existing retry state since this is a special case
-        self.retry_state = None;
-
         let delay_secs = retry_after.as_secs();
 
         // Add a transient message to inform the user (no attempt count for single retry)
