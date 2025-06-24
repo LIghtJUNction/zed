@@ -48,6 +48,8 @@ macro_rules! actions {
 /// actions!(editor, [MoveUp, MoveDown, MoveLeft, MoveRight, Newline]);
 /// ```
 ///
+/// Registering the same action name more than once will result in an immediate panic on startup.
+///
 /// # Derive Macro
 ///
 /// More complex data types can also be actions, by using the derive macro for `Action`:
@@ -277,14 +279,27 @@ impl ActionRegistry {
     }
 
     fn insert_action(&mut self, action: MacroActionData) {
+        let name = action.name;
+        if self.by_name.contains_key(name) {
+            panic!(
+                "Action with name `{name}` already registered \
+                (might be registered in `#[action(deprecated_aliases = [...])]`."
+            );
+        }
         self.by_name.insert(
-            action.name,
+            name,
             ActionData {
                 build: action.build,
                 json_schema: action.json_schema,
             },
         );
         for &alias in action.deprecated_aliases {
+            if self.by_name.contains_key(alias) {
+                panic!(
+                    "Action with name `{alias}` already registered. \
+                    `{alias}` is specified in `#[action(deprecated_aliases = [...])]` for action `{name}`."
+                );
+            }
             self.by_name.insert(
                 alias,
                 ActionData {
@@ -292,14 +307,13 @@ impl ActionRegistry {
                     json_schema: action.json_schema,
                 },
             );
-            self.deprecated_aliases.insert(alias, action.name);
+            self.deprecated_aliases.insert(alias, name);
             self.all_names.push(alias);
         }
-        self.names_by_type_id.insert(action.type_id, action.name);
-        self.all_names.push(action.name);
+        self.names_by_type_id.insert(action.type_id, name);
+        self.all_names.push(name);
         if let Some(deprecation_msg) = action.deprecation_message {
-            self.deprecation_messages
-                .insert(action.name, deprecation_msg);
+            self.deprecation_messages.insert(name, deprecation_msg);
         }
     }
 
